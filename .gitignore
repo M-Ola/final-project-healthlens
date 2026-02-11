@@ -17,5 +17,5 @@ dist/
 # --- SECRETS & KEYS (Crucial!) ---
 # This will ignore a file named 'config.js'
 # API key here.
-config.js
+
 .env
