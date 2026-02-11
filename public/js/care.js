@@ -196,9 +196,6 @@ button.classList.add('active');
 });
  */
 
-
-
-
 const listEl = document.getElementById('care-list');
 const filterButtons = document.querySelectorAll('.care-filters button');
 
@@ -207,13 +204,31 @@ let allPlaces = [];
 let markers = [];
 
 /* -------------------------------------------------------
+   Load Google Maps (new API)
+------------------------------------------------------- */
+async function loadGoogleMaps() {
+  if (window.google && google.maps && google.maps.importLibrary) return;
+
+  await new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${window.CONFIG.API_KEY}&v=beta&libraries=maps,marker,places`;
+    script.async = true;
+    script.defer = true;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+/* -------------------------------------------------------
    Start App
 ------------------------------------------------------- */
 navigator.geolocation.getCurrentPosition(
   async (pos) => {
     const { latitude, longitude } = pos.coords;
 
-    initMap(latitude, longitude);
+    await loadGoogleMaps();
+    await initMap(latitude, longitude);
 
     allPlaces = await findNearbyCare(latitude, longitude);
 
@@ -225,19 +240,37 @@ navigator.geolocation.getCurrentPosition(
 );
 
 /* -------------------------------------------------------
-   Map Setup
+   Map Setup (new importLibrary API)
 ------------------------------------------------------- */
-function initMap(lat, lng) {
-  map = new google.maps.Map(document.getElementById('map'), {
+async function initMap(lat, lng) {
+  const { Map } = await google.maps.importLibrary('maps');
+  const { AdvancedMarkerElement } = await google.maps.importLibrary('marker');
+
+  map = new Map(document.getElementById('map'), {
     center: { lat, lng },
     zoom: 13,
+    mapId: '53fc842d832b0660da371dd0',
   });
 
-  new google.maps.Marker({
-    position: { lat, lng },
+
+  new AdvancedMarkerElement({
     map,
+    position: { lat, lng },
     title: 'You are here',
+    content: createIcon('https://maps.gstatic.com/mapfiles/ms2/micons/man.png'),
   });
+}
+
+/* -------------------------------------------------------
+   Create DOM icon for AdvancedMarkerElement
+------------------------------------------------------- */
+function createIcon(url) {
+  const img = document.createElement('img');
+  img.src = url;
+  img.style.width = '32px';
+  img.style.height = '32px';
+  img.style.objectFit = 'contain';
+  return img;
 }
 
 /* -------------------------------------------------------
@@ -319,28 +352,27 @@ function renderList(places) {
 
       if (!marker) return;
 
-      map.panTo(marker.getPosition());
+      map.panTo(marker.position);
       map.setZoom(15);
 
-      marker.setAnimation(google.maps.Animation.BOUNCE);
-      setTimeout(() => marker.setAnimation(null), 1400);
+      // Bounce animation via CSS transform
+      marker.content.style.transition = 'transform 0.3s ease';
+      marker.content.style.transform = 'scale(1.3)';
+      setTimeout(() => {
+        marker.content.style.transform = 'scale(1)';
+      }, 300);
     });
   });
 }
 
-
-
-
-
-
-
-
 /* -------------------------------------------------------
-   Render Markers
+   Render Markers (AdvancedMarkerElement)
 ------------------------------------------------------- */
-function renderMarkers(places) {
+async function renderMarkers(places) {
+  const { AdvancedMarkerElement } = await google.maps.importLibrary('marker');
+
   // Clear old markers
-  markers.forEach((m) => m.setMap(null));
+  markers.forEach((m) => (m.map = null));
   markers = [];
 
   const icons = {
@@ -353,21 +385,17 @@ function renderMarkers(places) {
   places.forEach((p) => {
     const type = getPrimaryType(p);
 
-    const marker = new google.maps.Marker({
+    const marker = new AdvancedMarkerElement({
+      map,
       position: {
         lat: p.location.latitude,
         lng: p.location.longitude,
       },
-      map,
       title: p.displayName.text,
-      icon: {
-        url: icons[type],
-        scaledSize: new google.maps.Size(32, 32),
-      },
-      animation: google.maps.Animation.DROP,
+      content: createIcon(icons[type]),
     });
 
-     marker.placeId = p.id;
+    marker.placeId = p.id;
 
     const info = new google.maps.InfoWindow({
       content: `
@@ -376,24 +404,22 @@ function renderMarkers(places) {
       `,
     });
 
-    marker.addListener('click', () => info.open(map, marker));
+    marker.addListener('click', () => {
+      info.open({
+        anchor: marker,
+        map,
+      });
+    });
 
     markers.push(marker);
   });
 }
 
-
-
-
-
-
-
 /* -------------------------------------------------------
-   Filters (Optimized)
+   Filters
 ------------------------------------------------------- */
 filterButtons.forEach((button) => {
   button.addEventListener('click', () => {
-    // Active state
     filterButtons.forEach((btn) => btn.classList.remove('active'));
     button.classList.add('active');
 

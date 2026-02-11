@@ -38,14 +38,15 @@
 </html>
  -->
 
-
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>HealthLens – Nearby Care</title>
   <link rel="stylesheet" href="css/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
+
 <body>
 
   <header>
@@ -53,6 +54,8 @@
   </header>
 
   <main>
+
+    <!-- Filter Buttons -->
     <div class="care-filters mini-cards">
       <button data-type="all" class="active">Show All</button>
       <button data-type="hospital">Hospital</button>
@@ -60,18 +63,24 @@
       <button data-type="pharmacy">Pharmacy</button>
     </div>
 
+    <!-- Map Container -->
     <div id="map"></div>
+
+    <!-- List Container -->
     <div id="care-list"></div>
 
+    <!-- Bottom Navigation -->
     <nav class="inline-nav mini-cards">
       <a href="index.html">Home</a> ·
       <a href="saved.html">Saved</a>
     </nav>
+
   </main>
 
-  <!-- Scripts -->
+  <!-- Load API Key -->
   <script src="config.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCyAH6rX8x_-GVGeYBVIju0su3yC6ILzu8&libraries=places"></script>
+
+  <!-- Load Care Page Logic (this loads Maps dynamically) -->
   <script type="module" src="js/care.js"></script>
 
 </body>
