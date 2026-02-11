@@ -264,14 +264,32 @@ async function initMap(lat, lng) {
 /* -------------------------------------------------------
    Create DOM icon for AdvancedMarkerElement
 ------------------------------------------------------- */
-function createIcon(url) {
+
+function createIcon(type) {
+  const div = document.createElement('div');
+  div.style.fontSize = '24px';
+
+  const emojis = {
+    hospital: '🏥',
+    doctor: '👨‍⚕️',
+    pharmacy: '💊',
+    other: '📍',
+  };
+
+  div.textContent = emojis[type] || '📍';
+  return div;
+}
+
+
+
+/* function createIcon(url) {
   const img = document.createElement('img');
   img.src = url;
   img.style.width = '32px';
   img.style.height = '32px';
   img.style.objectFit = 'contain';
   return img;
-}
+} */
 
 /* -------------------------------------------------------
    Google Places API
@@ -375,13 +393,15 @@ async function renderMarkers(places) {
   markers.forEach((m) => (m.map = null));
   markers = [];
 
-  const icons = {
+ /*  const icons = {
     hospital: 'https://maps.gstatic.com/mapfiles/ms2/micons/hospitals.png',
     doctor: 'https://maps.gstatic.com/mapfiles/ms2/micons/doctor.png',
     pharmacy: 'https://maps.gstatic.com/mapfiles/ms2/micons/pharmacy.png',
     other: 'https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png',
-  };
+  }; */
 
+
+  
   places.forEach((p) => {
     const type = getPrimaryType(p);
 
@@ -392,7 +412,9 @@ async function renderMarkers(places) {
         lng: p.location.longitude,
       },
       title: p.displayName.text,
-      content: createIcon(icons[type]),
+      //content: createIcon(icons[type]),
+      content: createIcon(type),
+    
     });
 
     marker.placeId = p.id;

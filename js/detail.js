@@ -23,9 +23,11 @@ document.getElementById('back-btn').onclick = () => {
 
   const title = doc.querySelector('h1')?.textContent?.trim() || 'Condition';
   const summary =
-    doc.querySelector('.summary')?.textContent?.trim() ||
+    doc.querySelector('.topic-summary p')?.textContent?.trim() ||
     doc.querySelector('.section-body p')?.textContent?.trim() ||
+    doc.querySelector('h1 + p')?.textContent?.trim() ||
     '';
+
 
   function extractSection(match) {
     const heading = [...doc.querySelectorAll('h2, h3')].find((h) =>
