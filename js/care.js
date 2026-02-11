@@ -195,6 +195,8 @@ button.classList.add('active');
 
 });
  */
+/*  */
+
 
 const listEl = document.getElementById('care-list');
 const filterButtons = document.querySelectorAll('.care-filters button');
@@ -252,22 +254,21 @@ async function initMap(lat, lng) {
     mapId: '53fc842d832b0660da371dd0',
   });
 
-
+  // User location marker
   new AdvancedMarkerElement({
     map,
     position: { lat, lng },
     title: 'You are here',
-    content: createIcon('https://maps.gstatic.com/mapfiles/ms2/micons/man.png'),
+    content: createIcon('other'),
   });
 }
 
 /* -------------------------------------------------------
    Create DOM icon for AdvancedMarkerElement
 ------------------------------------------------------- */
-
 function createIcon(type) {
   const div = document.createElement('div');
-  div.style.fontSize = '24px';
+  div.style.fontSize = '26px';
 
   const emojis = {
     hospital: '🏥',
@@ -279,17 +280,6 @@ function createIcon(type) {
   div.textContent = emojis[type] || '📍';
   return div;
 }
-
-
-
-/* function createIcon(url) {
-  const img = document.createElement('img');
-  img.src = url;
-  img.style.width = '32px';
-  img.style.height = '32px';
-  img.style.objectFit = 'contain';
-  return img;
-} */
 
 /* -------------------------------------------------------
    Google Places API
@@ -373,12 +363,12 @@ function renderList(places) {
       map.panTo(marker.position);
       map.setZoom(15);
 
-      // Bounce animation via CSS transform
-      marker.content.style.transition = 'transform 0.3s ease';
-      marker.content.style.transform = 'scale(1.3)';
+      // Bounce animation
+      marker.content.style.transition = 'transform 0.25s ease';
+      marker.content.style.transform = 'scale(1.35)';
       setTimeout(() => {
         marker.content.style.transform = 'scale(1)';
-      }, 300);
+      }, 250);
     });
   });
 }
@@ -393,15 +383,6 @@ async function renderMarkers(places) {
   markers.forEach((m) => (m.map = null));
   markers = [];
 
- /*  const icons = {
-    hospital: 'https://maps.gstatic.com/mapfiles/ms2/micons/hospitals.png',
-    doctor: 'https://maps.gstatic.com/mapfiles/ms2/micons/doctor.png',
-    pharmacy: 'https://maps.gstatic.com/mapfiles/ms2/micons/pharmacy.png',
-    other: 'https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png',
-  }; */
-
-
-  
   places.forEach((p) => {
     const type = getPrimaryType(p);
 
@@ -412,9 +393,7 @@ async function renderMarkers(places) {
         lng: p.location.longitude,
       },
       title: p.displayName.text,
-      //content: createIcon(icons[type]),
       content: createIcon(type),
-    
     });
 
     marker.placeId = p.id;
@@ -427,10 +406,7 @@ async function renderMarkers(places) {
     });
 
     marker.addListener('click', () => {
-      info.open({
-        anchor: marker,
-        map,
-      });
+      info.open({ anchor: marker, map });
     });
 
     markers.push(marker);
