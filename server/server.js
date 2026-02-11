@@ -32,7 +32,7 @@ import cors from 'cors';
 
 const app = express();
 app.use(cors());
-app.use(express.static('public'));
+app.use(express.static('.'));
 
 app.get('/api/conditions', async (req, res) => {
   const term = req.query.term;
