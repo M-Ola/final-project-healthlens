@@ -1,24 +1,4 @@
-/* export async function searchConditions(term) {
-  const res = await fetch(`/api/conditions?term=${encodeURIComponent(term)}`);
-  const xmlText = await res.text();
-  const parser = new DOMParser();
-  const xml = parser.parseFromString(xmlText, 'text/xml');
 
-  const docs = [...xml.querySelectorAll('list > document')];
-
-  return docs.map((doc) => {
-    const url = doc.getAttribute('url');
-    const title =
-      doc.querySelector('content[name=title]')?.textContent || 'Untitled';
-    const snippet =
-      doc.querySelector('content[name=snippet]')?.textContent || '';
-    return { id: url, title, snippet, url };
-  });
-}
- */
-
-/* 
-/*  */
 
 /* -------------------------------------------------------
    Environment Detection
@@ -38,37 +18,6 @@ const BASE_URL = isLocal
 /* -------------------------------------------------------
    Parse MedlinePlus XML → JSON
 ------------------------------------------------------- */
-/* function parseMedlinePlusXML(xmlText) {
-  const parser = new DOMParser();
-  const xml = parser.parseFromString(xmlText, 'text/xml');
-
-  const docs = [...xml.querySelectorAll('document')];
-
-  return docs.map((doc) => {
-    const title =
-      doc.querySelector("content[name='title']")?.textContent?.trim() ||
-      'Unknown';
-
-    // ⭐ Bulletproof URL extraction — covers ALL MedlinePlus formats
-    const topicUrl =
-      doc.querySelector("content[name='full-summary-url']")?.textContent?.trim() ||
-      doc.querySelector("content[name='FullSummaryUrl']")?.textContent?.trim() || // ← missing before
-      doc.querySelector("content[name='FullSummaryLink']")?.textContent?.trim() ||
-      doc.querySelector("content[name='link']")?.textContent?.trim() ||
-      doc.querySelector("content[name='url']")?.textContent?.trim() ||
-      '';
-
-    const summary =
-      doc.querySelector("content[name='Summary']")?.textContent?.trim() ||
-      doc.querySelector("content[name='Symptoms']")?.textContent?.trim() ||
-      doc.querySelector("content[name='FullSummary']")?.textContent?.trim() ||
-      '';
-
-    return { title, url: topicUrl, snippet: summary };
-  });
-}
-
- */
 
 function parseMedlinePlusXML(xmlText) {
   const parser = new DOMParser();

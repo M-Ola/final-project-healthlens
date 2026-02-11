@@ -1,30 +1,4 @@
-/* import express from 'express';
-import fetch from 'node-fetch';
-import cors from 'cors';
 
-const app = express();
-app.use(cors());
-
-app.get('/api/conditions', async (req, res) => {
-  const term = req.query.term;
-  const url = `https://wsearch.nlm.nih.gov/ws/query?db=healthTopics&term=${encodeURIComponent(term)}`;
-
-  try {
-    const response = await fetch(url);
-    const xml = await response.text();
-    res.set('Content-Type', 'application/xml');
-    res.send(xml);
-  } catch (err) {
-    console.error('SERVER ERROR:', err);
-    res.status(500).send('Error fetching data');
-  }
-});
-
-app.listen(3000, () => {
-  console.log('Proxy server running at http://localhost:3000');
-});
-
- */
 
 import express from 'express';
 import fetch from 'node-fetch';
