@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HealthLens – Home</title>
+  <link rel="stylesheet" href="css/style.css?v=3"  />
+</head>
+<body>
+  <header>
+    <h1>🩺 HealthLens</h1>
+  </header>
+
+  <main>
+    <h2>Describe your symptoms</h2>
+    <p>We’ll search MedlinePlus for related conditions.</p>
+
+    <form id="search-form">
+      <input
+        id="symptom-input"
+        type="text"
+        placeholder="e.g. headache, nausea, dizziness"
+       required
+      />
+      <button class="primary" type="submit">Find conditions</button>
+    </form>
+
+<nav class="inline-nav mini-cards">
+  <a href="care.html">Find nearby care</a>
+  <a href="saved.html">Saved conditions</a>
+</nav>
+
+ 
+  </main>
+
+  <script type="module" src="js/index.js"></script>
+</body>
+</html>

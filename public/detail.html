@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HealthLens – Detail</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Condition detail</h1>
+  </header>
+
+  <main>
+    <button id="back-btn" class="link">← Back to results</button>
+  <div class="save-btn-wrapper"> <button id="save-btn" class="mini-card-btn">☆ Save</button> </div>
+
+
+    <h2 id="title"></h2>
+    <section>
+      <h3>Summary</h3>
+      <p id="summary"></p>
+    </section>
+
+    <section id="symptoms-section" hidden>
+      <h3>Symptoms</h3>
+      <p id="symptoms"></p>
+    </section>
+
+    <section id="treatment-section" hidden>
+      <h3>Treatment</h3>
+      <p id="treatment"></p>
+    </section>
+
+    <section id="prevention-section" hidden>
+      <h3>Prevention</h3>
+      <p id="prevention"></p>
+    </section>
+
+    <p><a id="source-link" href="#" target="_blank">Read more on MedlinePlus</a></p>
+
+    <nav class="inline-nav mini-cards">
+      <a href="index.html">Home</a> ·
+      <a href="saved.html">Saved</a>
+    </nav>
+  </main>
+
+  <script type="module" src="js/detail.js"></script>
+</body>
+</html>
+
+
+
