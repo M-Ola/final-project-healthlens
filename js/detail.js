@@ -7,8 +7,10 @@ import { getBookmarks, isBookmarked, toggleBookmark } from './bookmarks.js';
    Read URL Params
 ------------------------------------------------------- */
 const params = new URLSearchParams(window.location.search);
-const topicUrl = params.get('url'); // ✔ Correct source of the MedlinePlus link
+const topicUrl = params.get('url');
 const term = params.get('term') || '';
+const summaryFromSearch = params.get('summary') || '';
+const snippetFromSearch = params.get('snippet') || '';
 
 /* -------------------------------------------------------
    Back Button
@@ -22,11 +24,13 @@ document.getElementById('back-btn').onclick = () => {
 };
 
 /* -------------------------------------------------------
-   Extract Summary 
+   Extract Summary (HTML fallback)
 ------------------------------------------------------- */
 function extractSummary(doc) {
   const candidates = [
+    '.page-summary p',
     '.topic-summary p',
+    '.summary p',
     '.section-body p',
     'h1 + p',
     'main p',
@@ -74,16 +78,27 @@ function extractSection(doc, match) {
     return;
   }
 
-  // Fetch HTML (local server OR GitHub Pages proxy)
+  // Fetch HTML
   const htmlText = await fetchDetailPage(topicUrl);
-
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlText, 'text/html');
 
   /* ------------------ Extract Content ------------------ */
-  const title = doc.querySelector('h1')?.textContent?.trim() || 'Condition';
+  const title =
+    doc.querySelector('h1')?.textContent?.trim() ||
+    params.get('title') ||
+    'Condition';
 
-  const summary = extractSummary(doc);
+  // Summary priority:
+  // 1. FullSummary from search API
+  // 2. snippet from search API
+  // 3. HTML fallback
+  const summary =
+    summaryFromSearch ||
+    snippetFromSearch ||
+    extractSummary(doc) ||
+    'No summary available.';
+
   const symptoms = extractSection(doc, 'symptom');
   const treatment = extractSection(doc, 'treat');
   const prevention = extractSection(doc, 'prevent');
@@ -92,7 +107,6 @@ function extractSection(doc, match) {
   document.getElementById('title').textContent = title;
   document.getElementById('summary').textContent = summary;
 
-  // ✔ Correct MedlinePlus link
   const sourceLink = document.getElementById('source-link');
   sourceLink.href = topicUrl;
   sourceLink.target = '_blank';
