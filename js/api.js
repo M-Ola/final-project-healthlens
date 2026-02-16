@@ -1,23 +1,22 @@
 
+
 /* -------------------------------------------------------
    Environment Detection
 ------------------------------------------------------- */
 const isLocal =
-  location.hostname === 'localhost' ||
-  location.hostname === '127.0.0.1';
+  location.hostname === "localhost" ||
+  location.hostname === "127.0.0.1";
 
-/*
-  Local → Express backend
-  GitHub Pages → AllOrigins /get endpoint (stable)
-*/
-const BASE_URL = isLocal
-  ? 'http://localhost:3000'
-  : 'https://api.allorigins.win/get?url=';
+/* -------------------------------------------------------
+   Base URLs
+------------------------------------------------------- */
+const LOCAL_BASE = "http://localhost:3000";
+const PROXY_BASE = "https://corsproxy.io/?"; 
+
 
 /* -------------------------------------------------------
    Parse MedlinePlus XML → JSON
 ------------------------------------------------------- */
-
 function parseMedlinePlusXML(xmlText) {
   const parser = new DOMParser();
   const xml = parser.parseFromString(xmlText, 'text/xml');
@@ -29,7 +28,7 @@ function parseMedlinePlusXML(xmlText) {
       doc.querySelector("content[name='title']")?.textContent?.trim() ||
       'Unknown';
 
-    // ⭐ REAL topic URL is in the <document url="..."> attribute
+    
     let topicUrl =
       doc.getAttribute('url')?.trim() ||
       doc
@@ -68,42 +67,56 @@ function parseMedlinePlusXML(xmlText) {
   });
 }
 
+
 /* -------------------------------------------------------
-   Search Conditions (XML)
+   Fetch Conditions 
 ------------------------------------------------------- */
 export async function searchConditions(term) {
-  if (isLocal) {
-    const res = await fetch(
-      `${BASE_URL}/api/conditions?term=${encodeURIComponent(term)}`
-    );
-    const xmlText = await res.text();
+  const medlineUrl =
+    `https://wsearch.nlm.nih.gov/ws/query?db=healthTopics&term=${encodeURIComponent(term)}`;
+
+  try {
+    let xmlText;
+
+    if (isLocal) {
+      const res = await fetch(
+        `${LOCAL_BASE}/api/conditions?term=${encodeURIComponent(term)}`
+      );
+      xmlText = await res.text();
+    } else {
+      const res = await fetch(PROXY_BASE + medlineUrl);
+      xmlText = await res.text();
+    }
+
     return parseMedlinePlusXML(xmlText);
+
+  } catch (err) {
+    console.error("Error fetching conditions:", err);
+    return []; // safe fallback
   }
-
-  const medlineUrl = `https://wsearch.nlm.nih.gov/ws/query?db=healthTopics&term=${encodeURIComponent(
-    term
-  )}`;
-
-  // ⭐ AllOrigins /get returns JSON with { contents: "<xml>" }
-  const res = await fetch(`${BASE_URL}${encodeURIComponent(medlineUrl)}`);
-  const data = await res.json();
-  const xmlText = data.contents;
-
-  return parseMedlinePlusXML(xmlText);
 }
 
 /* -------------------------------------------------------
-   Fetch Detail Page (HTML)
+   Fetch Detail Page 
 ------------------------------------------------------- */
 export async function fetchDetailPage(topicUrl) {
-  if (isLocal) {
-    const res = await fetch(
-      `${BASE_URL}/api/detail?url=${encodeURIComponent(topicUrl)}`
-    );
-    return res.text();
-  }
+  try {
+    let html;
 
-  const res = await fetch(`${BASE_URL}${encodeURIComponent(topicUrl)}`);
-  const data = await res.json();
-  return data.contents; // ⭐ HTML string
+    if (isLocal) {
+      const res = await fetch(
+        `${LOCAL_BASE}/api/detail?url=${encodeURIComponent(topicUrl)}`
+      );
+      html = await res.text();
+    } else {
+      const res = await fetch(PROXY_BASE + topicUrl);
+      html = await res.text();
+    }
+
+    return html;
+
+  } catch (err) {
+    console.error("Error fetching detail page:", err);
+    return "<p>Error loading detail page.</p>";
+  }
 }
