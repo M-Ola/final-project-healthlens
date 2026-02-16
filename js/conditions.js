@@ -73,9 +73,8 @@ async function loadConditions() {
     console.error('Error loading conditions:', err);
     resultsEl.innerHTML = `<p class="error">Unable to load results. Please try again later.</p>`;
   }
-const items = await searchConditions(term);
-console.log(items);
-
+  const items = await searchConditions(term);
+  console.log(items);
 }
 
 loadConditions();

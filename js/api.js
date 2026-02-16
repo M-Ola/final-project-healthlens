@@ -1,5 +1,4 @@
 
-
 /* -------------------------------------------------------
    Environment Detection
 ------------------------------------------------------- */
@@ -9,11 +8,11 @@ const isLocal =
 
 /*
   Local → Express backend
-  GitHub Pages → AllOrigins proxy
+  GitHub Pages → AllOrigins /get endpoint (stable)
 */
 const BASE_URL = isLocal
   ? 'http://localhost:3000'
-  : 'https://api.allorigins.win/raw?url=';
+  : 'https://api.allorigins.win/get?url=';
 
 /* -------------------------------------------------------
    Parse MedlinePlus XML → JSON
@@ -59,19 +58,15 @@ function parseMedlinePlusXML(xmlText) {
       doc.querySelector("content[name='Symptoms']")?.textContent?.trim() ||
       doc.querySelector("content[name='FullSummary']")?.textContent?.trim() ||
       '';
-    
+
     const shortSnippet =
       summary.length > 160
         ? summary.slice(0, summary.lastIndexOf(' ', 160)) + '…'
         : summary;
 
-    return { title, url: topicUrl, snippet: shortSnippet};
+    return { title, url: topicUrl, snippet: shortSnippet };
   });
 }
-
-
-
-
 
 /* -------------------------------------------------------
    Search Conditions (XML)
@@ -89,8 +84,10 @@ export async function searchConditions(term) {
     term
   )}`;
 
+  // ⭐ AllOrigins /get returns JSON with { contents: "<xml>" }
   const res = await fetch(`${BASE_URL}${encodeURIComponent(medlineUrl)}`);
-  const xmlText = await res.text();
+  const data = await res.json();
+  const xmlText = data.contents;
 
   return parseMedlinePlusXML(xmlText);
 }
@@ -107,5 +104,6 @@ export async function fetchDetailPage(topicUrl) {
   }
 
   const res = await fetch(`${BASE_URL}${encodeURIComponent(topicUrl)}`);
-  return res.text();
+  const data = await res.json();
+  return data.contents; // ⭐ HTML string
 }
